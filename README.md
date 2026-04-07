@@ -8,7 +8,7 @@ Supports Cursor, Claude Code, Codex, and 40+ other agents.
 ## Install
 
 ```bash
-npx skills add Whapi-Cloud/whapi-agent-skills
+npx skills add Whapi-Cloud/whapi-whatsapp-api-skill
 ```
 
 ## What It Covers
@@ -28,8 +28,8 @@ The agent will reference it when you work on WhatsApp integrations.
 To install to a specific agent only:
 
 ```bash
-npx skills add Whapi-Cloud/whapi-agent-skills --agent cursor
-npx skills add Whapi-Cloud/whapi-agent-skills --agent claude-code
+npx skills add Whapi-Cloud/whapi-whatsapp-api-skill --agent cursor
+npx skills add Whapi-Cloud/whapi-whatsapp-api-skill --agent claude-code
 ```
 
 ## Requirements
