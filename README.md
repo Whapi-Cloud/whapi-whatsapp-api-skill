@@ -1,7 +1,7 @@
-# WHAPI Agent Skill
+# WHAPI Agent Skill for WhatsApp automation
 
 WhatsApp API skill for AI agents — prevents the most common mistakes when
-building WhatsApp bots and automations with [WHAPI.cloud](https://whapi.cloud).
+building WhatsApp bots and automations with [Whapi.Cloud](https://whapi.cloud).
 
 Supports Cursor, Claude Code, Codex, and 40+ other agents.
 
