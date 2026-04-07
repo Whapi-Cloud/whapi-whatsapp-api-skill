@@ -26,6 +26,19 @@ New to WHAPI? Read in this order:
 
 ---
 
+## MCP as Source of Truth for Undocumented Endpoints
+
+This skill documents the most common operations. The `whapi-mcp` MCP server
+exposes ALL available API methods.
+
+**When you need an operation not listed in this guide:**
+1. List available MCP tools and find the matching one.
+2. Use ONLY parameters from the MCP tool schema — never invent parameter names.
+3. Still apply Chat ID format rules (`core-chat-id.md`) and auth rules (`core-auth.md`).
+4. Do NOT fall back to REST guessing if the MCP tool is available.
+
+---
+
 ## 1. Core Concepts — CRITICAL
 
 Read these before anything else. Errors here break every other part of the integration.

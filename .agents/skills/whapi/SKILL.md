@@ -59,6 +59,21 @@ Reference these guidelines when:
 - Building bots, broadcast systems, or CRM integrations
 - Troubleshooting unexpected API behavior
 
+## API Coverage and MCP Fallback
+
+This skill covers the most-used operations and prevents the most common mistakes.
+It does NOT document every WHAPI endpoint.
+
+**If the operation you need is not described in any reference file:**
+1. Check available MCP tools — `whapi-mcp` exposes all API methods directly.
+2. Apply `core-chat-id.md` rules for Chat ID format regardless of the endpoint.
+3. Apply `core-auth.md` rules for authentication regardless of the endpoint.
+4. Use ONLY parameter names from the MCP tool schema — do NOT invent parameters.
+5. Validate against the [WHAPI API Reference](https://whapi.readme.io/reference) if unsure.
+
+The MCP is the source of truth for available methods. The skill is the source of truth
+for correct usage patterns and anti-hallucination rules.
+
 ## Rule Categories by Priority
 
 | Priority | Category     | Impact    | Prefix          |
