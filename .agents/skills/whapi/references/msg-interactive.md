@@ -118,32 +118,89 @@ Key fields:
 
 If you need buttons or lists and accept the instability risk, use `sendMessageInteractive`.
 
-**Required fields:** `to`, `action`
+**Required fields:** `to`, `action`, `type`
 
-**Incorrect (missing action or wrong structure):**
+The `type` field determines the interactive message subtype.
+Each subtype has a **different** `action` structure — do NOT mix them.
+
+| `type` value | What it sends | `action` structure |
+|--------------|---------------|--------------------|
+| `"button"` | Quick-reply buttons (up to 3) | `action.buttons[]` |
+| `"list"` | Scrollable list of options | `action.list{ sections[], label }` |
+
+> Other interactive types exist (URL Link Button, OTP/Copy Button, Call Button)
+> but are not yet documented in this skill. Do NOT guess their structure —
+> check the [WHAPI API Reference](https://whapi.readme.io/reference) for those types.
+
+---
+
+#### Type 1: Quick-Reply Buttons (`type: "button"`)
+
+Renders up to 3 tappable buttons below the message. When tapped, the button title
+is sent back as a regular text message.
+
+**Incorrect — nested `reply` object (causes 400 error):**
 ```json
-// Tool: sendMessageInteractive
+// Tool: sendMessageInteractive — WRONG structure
 {
   "to": "14155552671@s.whatsapp.net",
-  "buttons": ["Yes", "No"]
+  "type": "button",
+  "body": { "text": "Confirm?" },
+  "action": {
+    "buttons": [
+      { "type": "reply", "reply": { "id": "yes", "title": "Confirm" } }
+    ]
+  }
 }
-// "buttons" is not a top-level field — structure must follow WhatsApp spec
+// ERROR: "type": "reply" with nested "reply" object does NOT work
 ```
 
-**Correct — reply buttons:**
+**Correct — quick-reply buttons:**
 ```json
 // Tool: sendMessageInteractive
 {
   "to": "14155552671@s.whatsapp.net",
   "type": "button",
-  "body": { "text": "Confirm your appointment?" },
+  "header": { "text": "Appointment Confirmation" },
+  "body": { "text": "Would you like to confirm your appointment?" },
+  "footer": { "text": "Reply within 24 hours" },
   "action": {
     "buttons": [
-      { "type": "reply", "reply": { "id": "yes", "title": "Confirm" } },
-      { "type": "reply", "reply": { "id": "no", "title": "Cancel" } }
+      { "type": "quick_reply", "title": "Confirm", "id": "btn_confirm" },
+      { "type": "quick_reply", "title": "Cancel", "id": "btn_cancel" }
     ]
   }
 }
+```
+
+Key rules for quick-reply buttons:
+- Each button: `"type": "quick_reply"`, `"title"` (button label), `"id"` (unique callback ID)
+- `title` and `id` are flat fields at the same level as `type` — no nested objects
+- Maximum 3 buttons per message
+- `header`, `footer` are optional; `body` is required
+
+---
+
+#### Type 2: List of Options (`type: "list"`)
+
+Renders a "menu" button that opens a scrollable list of options grouped into sections.
+
+**Incorrect — sections directly in action (causes 400 error):**
+```json
+// Tool: sendMessageInteractive — WRONG structure
+{
+  "to": "14155552671@s.whatsapp.net",
+  "type": "list",
+  "body": { "text": "Choose a category:" },
+  "action": {
+    "button": "Open menu",
+    "sections": [
+      { "title": "Support", "rows": [{ "id": "1", "title": "Billing" }] }
+    ]
+  }
+}
+// ERROR: "sections" must NOT be placed directly in "action"
+// ERROR: "button" is NOT a valid field — use "label" inside "action.list"
 ```
 
 **Correct — list message:**
@@ -152,21 +209,31 @@ If you need buttons or lists and accept the instability risk, use `sendMessageIn
 {
   "to": "14155552671@s.whatsapp.net",
   "type": "list",
+  "header": { "text": "Support Menu" },
   "body": { "text": "Choose a support category:" },
+  "footer": { "text": "Tap the button below to see options" },
   "action": {
-    "button": "Open menu",
-    "sections": [
-      {
-        "title": "Support",
-        "rows": [
-          { "id": "billing", "title": "Billing", "description": "Payment issues" },
-          { "id": "technical", "title": "Technical", "description": "App problems" }
-        ]
-      }
-    ]
+    "list": {
+      "sections": [
+        {
+          "title": "Support Topics",
+          "rows": [
+            { "id": "billing", "title": "Billing", "description": "Payment and invoice issues" },
+            { "id": "technical", "title": "Technical", "description": "App problems and bugs" }
+          ]
+        }
+      ],
+      "label": "Open menu"
+    }
   }
 }
 ```
+
+Key rules for list messages:
+- `sections` array is wrapped inside `action.list` — never directly in `action`
+- `label` (the text on the menu button) is inside `action.list` — not `action.button`
+- Each section has `title` and `rows[]`; each row has `id`, `title`, and optional `description`
+- `header`, `footer` are optional; `body` is required
 
 ---
 
@@ -177,17 +244,25 @@ Need user to pick one of N options?
 │
 ├── Options are simple text choices → sendMessagePoll (reliable)
 │
-└── Need branded/styled buttons with custom IDs → sendMessageInteractive
-    └── Accept that it may not render on all devices
+└── Need branded/styled buttons or structured list?
+    │
+    ├── Up to 3 simple buttons → sendMessageInteractive with type: "button"
+    │   └── action.buttons[] with type: "quick_reply"
+    │
+    └── Scrollable menu with sections → sendMessageInteractive with type: "list"
+        └── action.list{ sections[], label }
 ```
 
 ---
 
-**Anti-hallucination — parameters that do NOT exist:**
+**Anti-hallucination — parameters and structures that do NOT work:**
 - `buttons` as a top-level parameter — buttons go inside `action.buttons`
 - `text` as a top-level parameter — body text goes in `body.text`
-- `options` in `sendMessageInteractive` — use `action.buttons` or `action.sections`
+- `options` in `sendMessageInteractive` — does not exist; use `action.buttons` or `action.list.sections`
 - `choices` — does not exist in either tool
-- `quick_replies` — use `action.buttons` with type `reply`
+- `quick_replies` as a field name — use `action.buttons` with `"type": "quick_reply"`
+- `"type": "reply"` with nested `"reply": { "id": "...", "title": "..." }` — **WRONG**; use `"type": "quick_reply"` with flat `"title"` and `"id"`
+- `action.button` (singular) — **WRONG** for list label; use `action.list.label`
+- `action.sections` (sections directly in action) — **WRONG**; sections go inside `action.list.sections`
 
 Reference: [Button Status](https://support.whapi.cloud/help-desk/faq/current-status-of-buttons-on-whatsapp) | [Polls as Buttons](https://support.whapi.cloud/help-desk/hints/how-to-use-polls-as-buttons)

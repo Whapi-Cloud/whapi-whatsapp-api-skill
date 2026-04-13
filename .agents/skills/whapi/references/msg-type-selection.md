@@ -34,6 +34,8 @@ What are you sending?
 │
 ├── Poll with options               → sendMessagePoll
 ├── Buttons / List / Interactive    → sendMessageInteractive  ⚠️ unstable
+│     ├── Quick-reply buttons      → type: "button"
+│     └── Scrollable list menu     → type: "list"
 │
 ├── vCard / contact sharing         → sendMessageContact
 │                                      or sendMessageContactList
@@ -84,7 +86,7 @@ What are you sending?
 | Document         | `sendMessageDocument`     | `to`, `media`        |
 | Sticker (WebP)   | `sendMessageSticker`      | `to`, `media`        |
 | Poll             | `sendMessagePoll`         | `to`, `title`, `options` |
-| Buttons/List     | `sendMessageInteractive`  | `to`, `action`       |
+| Buttons/List     | `sendMessageInteractive`  | `to`, `action`, `type` |
 | Contact vCard    | `sendMessageContact`      | `to`, `vcard`        |
 | Location         | `sendMessageLocation`     | `to`, `lat`, `lon`   |
 | Any media        | `sendMediaMessage`        | `MediaMessageType`, `SendParams` |

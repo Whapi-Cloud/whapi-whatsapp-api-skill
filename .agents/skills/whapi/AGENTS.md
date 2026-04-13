@@ -58,7 +58,7 @@ Read these before anything else. Errors here break every other part of the integ
 | [`references/msg-type-selection.md`](references/msg-type-selection.md) | Decision tree: which MCP tool to call based on what you are sending (text, image, video, voice, document, poll, etc.). |
 | [`references/msg-text.md`](references/msg-text.md) | Text formatting (bold, italic), emojis, line breaks, link preview, typing simulation, quoting, mentions, reactions. |
 | [`references/msg-media.md`](references/msg-media.md) | Media files: URL vs base64, MIME types per format, voice vs audio distinction, captions, encoding options. |
-| [`references/msg-interactive.md`](references/msg-interactive.md) | Polls (stable) and interactive buttons/lists (unstable). Tracking poll responses via webhook and GET. Correct `action` structure. |
+| [`references/msg-interactive.md`](references/msg-interactive.md) | Polls (stable) and interactive messages (unstable): Quick-reply buttons (`type: "button"`) and List of options (`type: "list"`). Correct `action` structures for each type, incorrect examples that cause 400 errors, poll response tracking. |
 
 ---
 
@@ -118,3 +118,5 @@ Read these before anything else. Errors here break every other part of the integ
 | Using `X-API-Key` header | Use `Authorization: Bearer {token}` | `core-auth.md` |
 | Replying to own messages (infinite loop) | Filter `from_me: true` in webhook handler | `pattern-bot.md` |
 | Sending to all recipients at once | Add 60–90 second delays; max 10 per 15 min | `pattern-broadcast.md` |
+| Using `"type": "reply"` with nested `reply` object for buttons | Use `"type": "quick_reply"` with flat `title` and `id` | `msg-interactive.md` |
+| Putting `sections` directly in `action` for list messages | Wrap in `action.list{ sections[], label }` | `msg-interactive.md` |
